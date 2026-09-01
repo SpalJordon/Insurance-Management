@@ -1,0 +1,67 @@
+public class Client implements Assessable {
+    private String clientId;
+    private String clientName;
+    private double monthlyIncome;
+    private Policy[] policies = new Policy[5];
+    private int count = 0;
+
+    //Constructor
+    public Client(String id, String name, double income) throws Exception {
+        if (!id.matches("CL-\\d{4}"))
+            throw new Exception("Invalid Client ID format");
+
+        if (income < 0)
+            throw new Exception("Income must not be negative");
+
+        this.clientId = id;
+        this.clientName = name;
+        this.monthlyIncome = income;
+    }
+
+    //Method
+    public void addPolicy(Policy p) throws Exception {
+        if (count >= 5)
+            throw new Exception("Max policies reached");
+
+        for (int i = 0; i < count; i++) {
+            if (policies[i].policyId.equals(p.policyId))
+                throw new Exception("Duplicate Policy ID");
+        }
+
+        double total = totalPremium() + p.monthlyPremium();
+        if (total > monthlyIncome * 0.4)
+            throw new Exception("Coverage rule violated");
+        //Add Policy
+        policies[count++] = p;
+    }
+
+    public double totalPremium() {
+        double sum = 0;
+        for (int i = 0; i < count; i++) {
+            sum += policies[i].monthlyPremium();
+        }
+        return sum;
+    }
+
+    public boolean isWithinCoverageLimit() {
+        return totalPremium() <= monthlyIncome * 0.4;
+    }
+    public String getClientId() {
+        return clientId;
+    }
+    public void removePolicy(int index) {
+        if (index < 0 || index >= count) {
+            throw new ArrayIndexOutOfBoundsException("Invalid policy index");
+        }
+
+        for (int i = index; i < count - 1; i++) {
+            policies[i] = policies[i + 1];
+        }
+
+        policies[--count] = null;
+    }
+    public void printSummary() {
+        System.out.println("Client: " + clientId + " " + clientName);
+        System.out.println("Total Premium: £" + totalPremium());
+    }
+}
