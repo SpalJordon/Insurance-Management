@@ -1,0 +1,32 @@
+public class HealthPolicy extends Policy {
+    private int age;
+    private boolean preExisting;
+
+    public HealthPolicy() {}
+
+    //Constructor
+    public HealthPolicy(String id, String provider, double coverage, int age, boolean preExisting) {
+        super(id, provider, coverage);
+        setAge(age);
+        this.preExisting = preExisting;
+    }
+
+    public void setAge(int age) {
+        if (age < 0 || age > 120)
+            throw new IllegalArgumentException("Invalid age");
+        this.age = age;
+    }
+
+    public double monthlyPremium() {
+        double factor = (age < 40) ? 1.0 : (age < 60) ? 1.5 : 2.0;
+        double premium = coverageAmount * 0.005 * factor;
+
+        if (preExisting) premium *= 1.2;
+
+        return premium;
+    }
+
+    public String toString() {
+        return "Health " + super.toString() + " Premium: £" + monthlyPremium();
+    }
+}
