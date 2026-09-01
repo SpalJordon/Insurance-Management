@@ -1,0 +1,61 @@
+public abstract class Policy {
+
+    protected String policyId;
+    protected String providerName;
+    protected double coverageAmount;
+
+    //Constructor
+    public Policy() {
+    }
+
+    //Parameterized Constructor
+    public Policy(String policyId, String providerName, double coverageAmount) {
+        setPolicyId(policyId);
+        this.providerName = providerName;
+        setCoverageAmount(coverageAmount);
+    }
+
+    //Abstract Method
+    public abstract double monthlyPremium();
+
+    //Getters
+    public String getPolicyId() {
+        return policyId;
+    }
+
+    public String getProviderName() {
+        return providerName;
+    }
+
+    public double getCoverageAmount() {
+        return coverageAmount;
+    }
+
+    // Setters
+    public void setPolicyId(String policyId) {
+        if (!policyId.matches("PL-\\d{4}")) {
+            throw new IllegalArgumentException("Invalid Policy ID format (PL-XXXX)");
+        }
+        this.policyId = policyId;
+    }
+
+    public void setProviderName(String providerName) {
+        this.providerName = providerName;
+    }
+
+    public void setCoverageAmount(double coverageAmount) {
+        if (coverageAmount <= 0)
+            throw new IllegalArgumentException("Coverage must be positive");
+        this.coverageAmount = coverageAmount;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%s %s %s £%.2f £%.2f",
+                policyId,
+                getClass().getSimpleName().replace("Policy", ""),
+                providerName,
+                coverageAmount,
+                monthlyPremium());
+    }
+}
