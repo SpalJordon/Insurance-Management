@@ -1,0 +1,204 @@
+import java.util.*;
+
+public class Main {
+        static Scanner sc = new Scanner(System.in);
+
+        public static void main(String[] args) {
+                Client[] clients = new Client[10];
+                int clientCount = 0;
+                int totalProcessed = 0;
+                while (true) {
+                        try {
+                                System.out.println("\n===== INSURERIGHT MENU =====");
+                                System.out.println("1. Register Client");
+                                System.out.println("2. Add Policy");
+                                System.out.println("3. Remove Policy");
+                                System.out.println("4. Print Client Details");
+                                System.out.println("5. Print All Clients");
+                                System.out.println("6. Exit");
+                                System.out.print("Choose option: ");
+
+                                int choice = getInt();
+
+                                switch (choice) {
+                                        case 1:
+                                                if (clientCount >= clients.length) {
+                                                        throw new Exception("Maximum number of clients reached.");
+                                                }
+
+                                                System.out.print("Enter Client ID (CL-XXXX): ");
+                                                String id = sc.next();
+
+                                                if (!id.matches("CL-\\d{4}")) {
+                                                        throw new Exception("Invalid Client ID format.");
+                                                }
+
+                                                sc.nextLine(); // FIX BUFFER
+
+                                                System.out.print("Enter Name: ");
+                                                String name = sc.nextLine();
+
+                                                double income = getDouble("Enter Monthly Income: ");
+
+                                                clients[clientCount++] = new Client(id, name, income);
+                                                System.out.println("Client added successfully.");
+                                                break;
+
+                                        //Add Policy
+                                        case 2:
+                                                System.out.print("Enter Client ID: ");
+                                                String cid = sc.next();
+
+                                                Client c = findClient(clients, clientCount, cid);
+                                                if (c == null) {
+                                                        System.out.println("Client not found.");
+                                                        break;
+                                                }
+
+                                                System.out.println("1.Health  2.Motor  3.Home");
+                                                int type = getInt();
+
+                                                System.out.print("Policy ID (PL-XXXX): ");
+                                                String pid = sc.next();
+
+                                                if (!pid.matches("PL-\\d{4}")) {
+                                                        throw new Exception("Invalid Policy ID format.");
+                                                }
+
+                                                sc.nextLine(); // FIX BUFFER
+
+                                                System.out.print("Provider: ");
+                                                String provider = sc.nextLine();
+
+                                                double coverage = getDouble("Coverage Amount: ");
+
+                                                Policy p = null;
+
+                                                if (type == 1) {
+                                                        int age = getInt("Age: ");
+                                                        System.out.print("Pre-existing (true/false): ");
+                                                        boolean pre = sc.nextBoolean();
+
+                                                        p = new HealthPolicy(pid, provider, coverage, age, pre);
+
+                                                } else if (type == 2) {
+                                                        double value = getDouble("Vehicle Value: ");
+                                                        int years = getInt("Years No Claims: ");
+
+                                                        p = new MotorPolicy(pid, provider, coverage, value, years);
+
+                                                } else if (type == 3) {
+                                                        double sqm = getDouble("Property Size: ");
+                                                        System.out.print("Flood Risk (true/false): ");
+                                                        boolean risk = sc.nextBoolean();
+
+                                                        p = new HomePolicy(pid, provider, coverage, sqm, risk);
+                                                } else {
+                                                        System.out.println("Invalid policy type.");
+                                                        break;
+                                                }
+
+                                                c.addPolicy(p);
+                                                System.out.println("Policy added.");
+                                                break;
+
+                                        //Remove Policy
+                                        case 3:
+                                                System.out.print("Enter Client ID: ");
+                                                cid = sc.next();
+
+                                                c = findClient(clients, clientCount, cid);
+                                                if (c == null) {
+                                                        System.out.println("Client not found.");
+                                                        break;
+                                                }
+
+                                                int index = getInt("Enter policy index: ");
+
+                                                try {
+                                                        c.removePolicy(index);
+                                                        System.out.println("Policy removed.");
+                                                } catch (ArrayIndexOutOfBoundsException e) {
+                                                        System.out.println("Invalid index.");
+                                                }
+                                                break;
+
+                                        case 4:
+                                                System.out.print("Enter Client ID: ");
+                                                cid = sc.next();
+
+                                                c = findClient(clients, clientCount, cid);
+                                                if (c != null) {
+                                                        c.printSummary();
+                                                } else {
+                                                        System.out.println("Client not found.");
+                                                }
+                                                break;
+
+                                        case 5:
+                                                for (int i = 0; i < clientCount; i++) {
+                                                        clients[i].printSummary();
+                                                        System.out.println("----------------------");
+                                                }
+                                                break;
+
+                                        case 6:
+                                                System.out.println("Exiting system...");
+                                                return;
+
+                                        default:
+                                                System.out.println("Invalid choice.");
+                                }
+
+                        } catch (InputMismatchException e) {
+                                System.out.println("Exception: java.util.InputMismatchException");
+                                System.out.println("Please enter a valid number.");
+                                sc.nextLine();
+
+                        } catch (ArithmeticException e) {
+                                System.out.println("Math error: " + e.getMessage());
+
+                        } catch (Exception e) {
+                                System.out.println("Exception: " + e.getMessage());
+
+                        } finally {
+                                totalProcessed++;
+                                System.out.println("Operations processed: " + totalProcessed);
+                        }
+                }
+        }
+
+        // 🔹 Safe int input
+        public static int getInt() {
+                while (!sc.hasNextInt()) {
+                        System.out.println("Please enter a valid number.");
+                        sc.next();
+                }
+                return sc.nextInt();
+        }
+
+        public static int getInt(String msg) {
+                System.out.print(msg);
+                return getInt();
+        }
+
+        // 🔹 Safe double input
+        public static double getDouble(String msg) {
+                System.out.print(msg);
+                while (!sc.hasNextDouble()) {
+                        System.out.println("Please enter a valid number.");
+                        sc.next();
+                }
+                return sc.nextDouble();
+        }
+
+        // 🔍 Find client
+        public static Client findClient(Client[] clients, int count, String id) {
+                for (int i = 0; i < count; i++) {
+                        if (clients[i].getClientId().equals(id)) {
+                                return clients[i];
+                        }
+                }
+                return null;
+        }
+}
