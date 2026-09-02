@@ -1,5 +1,5 @@
 # Insurance Management
-A console-based insurance management system written in Java, allowing for a company to register clients and sell them policies
+A console-based insurance management system written in Java, allowing for a company to register clients and sell them policies. this was an assignment in one of my programming modules
 
 # Features
 - Register clients if they have a valid ID
